@@ -46,7 +46,7 @@ PSO::PSO(KON * _infunc, const MY::uint& _nI) {
 	nDIM     = func->GET_DIM();
 						// 285  /3->95 GRUP /15->19 HUCRE
 	LDIM	 = nDIM/15;	// 270  /3->90 GRUP /15->18 HUCRE /45->6
-	nPUB     = 10*LDIM;
+	nPUB     = 150*LDIM;
 	nPUB	-= nPUB%nProcessors;
 	nLOC     = (MY::uint)(MY::uint(nPUB/nProcessors) /3 );
 	nCRITER  = 3;
@@ -217,8 +217,8 @@ void PSO::URET() {
 				else if (tmpP[id][j] > uSNR[j]) { tmpP[id][j] = uSNR[j];}
 				}
 				func->UYGUNLUK(tmpP[id],tmpP[id][nDIM],false);
-				COMPARE_UPDATE_B(dPUB[i],tmpP[id],true);
-				NOTIFY(dPUB[i],id,i,true);
+				bool OK=COMPARE_UPDATE_B(dPUB[i],tmpP[id],true);
+				if(OK){NOTIFY(dPUB[i],id,i,true);}
 			}
 			/**********************************************************************************/
 			/**********************************************************************************/
@@ -271,30 +271,31 @@ void PSO::URET() {
 			if constexpr(_GA != 0){
 				for (MY::uint j = 0; j < nDIM; j++) {tmpP[id][j] = dPUB[i][j];}
 				double U = DoubleFromBits(mt_A_PSO[id]());
-				if (U < cro_rate && U > mut_rate) {
-					MY::uint m;					
-					do { m = nTH_BSL[id]+dist_I_PSO(mt_A_PSO[id])%n; } while (i == m || i < nTH_BSL[id] || i >= nTH_BTS[id] || i<0 || i>nPUB);
-					double cr_d =  DoubleFromBits(mt_A_PSO[id]());
-					double S	= (DoubleFromBits(mt_A_PSO[id]())-0.5)*4;
-					for (MY::uint j = aDIM; j < SON; j++){
-						tmpP[id][j] = (cr_d)*dPUB[i][j] + (1.0 - cr_d) * dPUB[m][j] + S;
-						 if (tmpP[id][j] < aSNR[j]) { tmpP[id][j] = aSNR[j];}
-					else if (tmpP[id][j] > uSNR[j]) { tmpP[id][j] = uSNR[j];}
+				if (U < cro_rate) {
+					if (U < mut_rate) {
+						for (MY::uint j = aDIM; j < SON; j++){
+							tmpP[id][j] = aSNR[j] + araSNR[j]* DoubleFromBits(mt_A_PSO[id]());
+							 if (tmpP[id][j] < aSNR[j]) { tmpP[id][j] = aSNR[j];}
+						else if (tmpP[id][j] > uSNR[j]) { tmpP[id][j] = uSNR[j];}
+						}
+					}else{
+						MY::uint m;					
+						do { m = nTH_BSL[id]+dist_I_PSO(mt_A_PSO[id])%n; } while (i == m || i < nTH_BSL[id] || i >= nTH_BTS[id] || i<0 || i>nPUB);
+						double cr_d =  DoubleFromBits(mt_A_PSO[id]());
+						double S	= (DoubleFromBits(mt_A_PSO[id]())-0.5)*4;
+						for (MY::uint j = aDIM; j < SON; j++){
+							tmpP[id][j] = (cr_d)*dPUB[i][j] + (1.0 - cr_d) * dPUB[m][j] + S;
+							 if (tmpP[id][j] < aSNR[j]) { tmpP[id][j] = aSNR[j];}
+						else if (tmpP[id][j] > uSNR[j]) { tmpP[id][j] = uSNR[j];}
+						}
 					}
-				}
-				if (U < mut_rate) {
-					for (MY::uint j = aDIM; j < SON; j++){
-						tmpP[id][j] = aSNR[j] + araSNR[j]* DoubleFromBits(mt_A_PSO[id]());
-						 if (tmpP[id][j] < aSNR[j]) { tmpP[id][j] = aSNR[j];}
-					else if (tmpP[id][j] > uSNR[j]) { tmpP[id][j] = uSNR[j];}
-					}
-				}
+				}				
 				func->UYGUNLUK(tmpP[id],tmpP[id][nDIM],false);
-				if(COMPARE_UPDATE_B(dPUB[i],tmpP[id],true)){
+				bool OK = COMPARE_UPDATE_B(dPUB[i],tmpP[id],true);
+				if(OK){
 					for (MY::uint j = 0; j <= nTAM; j++){P_BEST[i][j] =  dPUB[i][j]; }
-				};
-				func->UYGUNLUK(dPUB[i],dPUB[i][nDIM],false);
-				NOTIFY(dPUB[i],id,i,true);
+					NOTIFY(dPUB[i],id,i,true);
+				}				
 			}
 			/**********************************************************************************/
 			/**********************************************************************************/
@@ -329,13 +330,15 @@ void PSO::URET() {
 		func->UYGUNLUK(G_WRST[id],G_WRST[id][nDIM],false);
 	}
 	for (MY::uint id = 1; id < nProcessors; id++) {
-		COMPARE_UPDATE_B(G_BEST[0],G_BEST[id],true);
-		COMPARE_UPDATE_W(G_WRST[0],G_WRST[id],true);
-	}
-	for (MY::uint id = 1; id < nProcessors; id++) {
-		for (MY::uint j = 0; j <= nTAM; j++){
-			G_BEST[id][j] = G_BEST[0][j];
-			G_WRST[id][j] = G_WRST[0][j];
+		if(COMPARE_UPDATE_B(G_BEST[0],G_BEST[id],true)){
+			for (MY::uint i = 1; i < id; i++) {
+				for (MY::uint j = 0; j <= nTAM; j++){G_BEST[i][j] = G_BEST[0][j];}
+			}
+		}
+		if(COMPARE_UPDATE_W(G_WRST[0],G_WRST[id],true)){
+			for (MY::uint i = 1; i < id; i++) {
+				for (MY::uint j = 0; j <= nTAM; j++){G_WRST[i][j] = G_WRST[0][j];}
+			}
 		}
 	}
 }
@@ -345,7 +348,7 @@ double PSO::RUN(double* EN_IYI) {
 	std::string NAME_1="PSO_OPT.txt";
 	MY::uint nTEST = 1000;
 	MY::uint nDEL  = 100;
-	MY::uint iS    = 0;
+	MY::uint iS    = 2600;
 	MY::uint iE    = nTEST+iS;
 
 	do{
