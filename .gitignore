@@ -10,3 +10,11 @@
 *.opendb
 /.vs/TRADER/v17/Solution.VC.db-shm
 /.vs/TRADER/v17/Solution.VC.db-wal
+/libFLC/x64/Release/libFLC.tlog/CL.command.1.tlog
+/libFLC/Release/CLASS_FLC.obj
+/libFLC/x64/Release/libFLC.tlog/Cl.items.tlog
+/libFLC/x64/Release/libFLC.tlog/libFLC.lastbuildstate
+/libFLC/x64/Release/libFLC.tlog/Cl.items.tlog
+/libFLC/x64/Release/libFLC.tlog/libFLC.lastbuildstate
+/libFLC/x64/Release/libFLC.tlog/CL.command.1.tlog
+/.vs/TRADER/FileContentIndex/read.lock
