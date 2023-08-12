@@ -18,3 +18,7 @@
 /libFLC/x64/Release/libFLC.tlog/libFLC.lastbuildstate
 /libFLC/x64/Release/libFLC.tlog/CL.command.1.tlog
 /.vs/TRADER/FileContentIndex/read.lock
+/libPSO/x64/Release/libPSO.Build.CppClean.log
+/.vs/TRADER/FileContentIndex/d201a1b5-c7ab-40c2-915b-5f9e3d803ed8.vsidx
+*.vsidx
+/libGA/x64/Release/libGA.Build.CppClean.log
