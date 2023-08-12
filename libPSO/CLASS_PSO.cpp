@@ -163,163 +163,166 @@ void PSO::URET() {
 		func->UYGUNLUK(G_WRST[id],G_WRST[id][nDIM],false);
 
 		for (MY::uint i = nTH_BSL[id]; i < nTH_BTS[id]; i++) {
-			if(i>=nPUB){break;}			
+			if(i>=nPUB){break;}
+			MY::uint CZ = dist_I_PSO(mt_A_PSO[id])%4;
 			/**********************************************************************************/
-			/**********************************************************************************/
-			if constexpr(_RAO != 0){
-				for (MY::uint j = 0; j <   nDIM; j++) { tmpP  [id][j] =   dPUB[i][j];}
-				if constexpr(_RAO == 1){
-					double r1=DoubleFromBits(mt_A_PSO[id]());
-					for (MY::uint j = aDIM; j < SON; j++) {
-						tmpP[id][j] = dPUB[i][j] + r1 * (G_BEST[id][j] - G_WRST[id][j]);
-					}
-				}
-				if constexpr(_RAO == 2){
-					MY::uint m;
-					do { m = nTH_BSL[id]+dist_I_PSO(mt_A_PSO[id])%n; } while (i == m || i < nTH_BSL[id] || i >= nTH_BTS[id] || i<0 || i>nPUB);
-					double r1=DoubleFromBits(mt_A_PSO[id]());
-					double r2=DoubleFromBits(mt_A_PSO[id]());
-					if (dPUB[i][nDIM]<dPUB[m][nDIM]){
+			if(CZ==0){
+				if constexpr(_RAO != 0){
+					for (MY::uint j = 0; j <   nDIM; j++) { tmpP  [id][j] =   dPUB[i][j];}
+					if constexpr(_RAO == 1){
+						double r1=DoubleFromBits(mt_A_PSO[id]());
 						for (MY::uint j = aDIM; j < SON; j++) {
-							tmpP[id][j] = dPUB[i][j] +
-									r1 * (G_BEST[id][j] - G_WRST[id][j]) +
-									r2 * (fabs(dPUB[i][j]) - fabs(dPUB[m][j]));
-						}
-					}else{
-						for (MY::uint j = aDIM; j < SON; j++) {
-							tmpP[id][j] = dPUB[i][j] +
-									r1 * (G_BEST[id][j] - G_WRST[id][j]) +
-									r2 * (fabs(dPUB[m][j]) - fabs(dPUB[i][j]));
+							tmpP[id][j] = dPUB[i][j] + r1 * (G_BEST[id][j] - G_WRST[id][j]);
 						}
 					}
-				}
-				if constexpr(_RAO == 3){
-					MY::uint m;
-					do { m = nTH_BSL[id]+dist_I_PSO(mt_A_PSO[id])%n; } while (i == m || i < nTH_BSL[id] || i >= nTH_BTS[id] || i<0 || i>nPUB);
-					double r1=DoubleFromBits(mt_A_PSO[id]());
-					double r2=DoubleFromBits(mt_A_PSO[id]());
-					if (dPUB[i][nDIM]<dPUB[m][nDIM]){
-						for (MY::uint j = aDIM; j < SON; j++) {
-							tmpP[id][j] = dPUB[i][j] +
-									r1 * (G_BEST[id][j] - fabs(G_WRST[id][j])) +
-									r2 * (fabs(dPUB[i][j]) - dPUB[m][j]);
-						}
-					}else{
-						for (MY::uint j = aDIM; j < SON; j++) {
-							tmpP[id][j] = dPUB[i][j] +
-									r1 * (G_BEST[id][j] - fabs(G_WRST[id][j])) +
-									r2 * (fabs(dPUB[m][j]) - dPUB[i][j]);
-						}
-					}
-				}
-				for (MY::uint j = aDIM; j < SON; j++) {
-					 if (tmpP[id][j] < aSNR[j]) { tmpP[id][j] = aSNR[j];}
-				else if (tmpP[id][j] > uSNR[j]) { tmpP[id][j] = uSNR[j];}
-				}
-				func->UYGUNLUK(tmpP[id],tmpP[id][nDIM],false);
-				bool OK=COMPARE_UPDATE_B(dPUB[i],tmpP[id],true);
-				if(OK){NOTIFY(dPUB[i],id,i,true);}
-			}
-			/**********************************************************************************/
-			/**********************************************************************************/
-			if constexpr(_PSO != 0){
-				for (MY::uint j = aDIM; j <   SON; j++) { L_BEST[id][j] = P_BEST[i][j];}
-				for (MY::uint j = nDIM; j <= nTAM; j++) { L_BEST[id][j] = P_BEST[i][j];}
-				for (MY::uint ii = 0; ii<nLOC; ii++) {
-					MY::uint k = (i+ii);
-					while(k >= nTH_BTS[id]){k = nTH_BSL[id]+(k-nTH_BTS[id]);}
-					COMPARE_UPDATE_B(L_BEST[id],P_BEST[k],true);
-				}
-				double *aVEL	= &VEL[i][0]+aDIM;
-				double *adPUB	= &dPUB[i][0]+aDIM;
-				double *aP_BEST = &P_BEST[i ][0]+aDIM;
-				double *aL_BEST = &L_BEST[id][0]+aDIM;
-				double *aG_BEST = &G_BEST[id][0]+aDIM;
-				double F1=DoubleFromBits(mt_A_PSO[id]())*c1;
-				double F2=DoubleFromBits(mt_A_PSO[id]())*c2;
-				double F3=DoubleFromBits(mt_A_PSO[id]())*c3;
-				for (MY::uint j = aDIM; j < SON; j++) {
-					(*aVEL) = K * ((*aVEL) +
-							F1 * ((*aP_BEST) - (*adPUB)) +
-							F2 * ((*aL_BEST) - (*adPUB)) +
-							F3 * ((*aG_BEST) - (*adPUB)));
-						 if((*aVEL) > ( 10)){(*aVEL) =( 10);}
-					else if((*aVEL) < (-10)){(*aVEL) =(-10);}
-					(*adPUB) += (*aVEL);
-						 if ((*adPUB) < aSNR[j]) { (*adPUB) = aSNR[j];}
-					else if ((*adPUB) > uSNR[j]) { (*adPUB) = uSNR[j];}
-					aVEL ++;
-					adPUB ++;
-					aP_BEST ++;
-					aL_BEST ++;
-					aG_BEST ++;
-//					VEL[i][j] = K * (VEL[i][j] +
-//							F1 * (P_BEST[id][j] - dPUB[i][j]) +
-//							F2 * (L_BEST[id][j] - dPUB[i][j]) +
-//							F3 * (G_BEST[id][j] - dPUB[i][j]));
-//						 if(VEL[i][j] > ( 30)){VEL[i][j] =( 30);}
-//					else if(VEL[i][j] < (-30)){VEL[i][j] =(-30);}
-//					dPUB[i][j] += VEL[i][j];
-//						 if (dPUB[i][j] < aSNR[j]) { dPUB[i][j] = aSNR[j];}
-//					else if (dPUB[i][j] > uSNR[j]) { dPUB[i][j] = uSNR[j];}
-				}
-				func->UYGUNLUK(dPUB[i],dPUB[i][nDIM],false);
-				NOTIFY(dPUB[i],id,i,true);
-			}
-			/**********************************************************************************/
-			/**********************************************************************************/
-			if constexpr(_GA != 0){
-				for (MY::uint j = 0; j < nDIM; j++) {tmpP[id][j] = dPUB[i][j];}
-				double U = DoubleFromBits(mt_A_PSO[id]());
-				if (U < cro_rate) {
-					if (U < mut_rate) {
-						for (MY::uint j = aDIM; j < SON; j++){
-							tmpP[id][j] = aSNR[j] + araSNR[j]* DoubleFromBits(mt_A_PSO[id]());
-							 if (tmpP[id][j] < aSNR[j]) { tmpP[id][j] = aSNR[j];}
-						else if (tmpP[id][j] > uSNR[j]) { tmpP[id][j] = uSNR[j];}
-						}
-					}else{
-						MY::uint m;					
+					if constexpr(_RAO == 2){
+						MY::uint m;
 						do { m = nTH_BSL[id]+dist_I_PSO(mt_A_PSO[id])%n; } while (i == m || i < nTH_BSL[id] || i >= nTH_BTS[id] || i<0 || i>nPUB);
-						double cr_d =  DoubleFromBits(mt_A_PSO[id]());
-						double S	= (DoubleFromBits(mt_A_PSO[id]())-0.5)*4;
-						for (MY::uint j = aDIM; j < SON; j++){
-							tmpP[id][j] = (cr_d)*dPUB[i][j] + (1.0 - cr_d) * dPUB[m][j] + S;
-							 if (tmpP[id][j] < aSNR[j]) { tmpP[id][j] = aSNR[j];}
-						else if (tmpP[id][j] > uSNR[j]) { tmpP[id][j] = uSNR[j];}
+						double r1=DoubleFromBits(mt_A_PSO[id]());
+						double r2=DoubleFromBits(mt_A_PSO[id]());
+						if (dPUB[i][nDIM]<dPUB[m][nDIM]){
+							for (MY::uint j = aDIM; j < SON; j++) {
+								tmpP[id][j] = dPUB[i][j] +
+										r1 * (G_BEST[id][j] - G_WRST[id][j]) +
+										r2 * (fabs(dPUB[i][j]) - fabs(dPUB[m][j]));
+							}
+						}else{
+							for (MY::uint j = aDIM; j < SON; j++) {
+								tmpP[id][j] = dPUB[i][j] +
+										r1 * (G_BEST[id][j] - G_WRST[id][j]) +
+										r2 * (fabs(dPUB[m][j]) - fabs(dPUB[i][j]));
+							}
 						}
 					}
-				}				
-				func->UYGUNLUK(tmpP[id],tmpP[id][nDIM],false);
-				bool OK = COMPARE_UPDATE_B(dPUB[i],tmpP[id],true);
-				if(OK){
-					for (MY::uint j = 0; j <= nTAM; j++){P_BEST[i][j] =  dPUB[i][j]; }
-					NOTIFY(dPUB[i],id,i,true);
-				}				
-			}
-			/**********************************************************************************/
-			/**********************************************************************************/
-			if constexpr(_GRD != 0){
-				const double OK = 2;
-				for (MY::uint j = 0; j <   nDIM; j++) { tmpP  [id][j] =   dPUB[i][j];}
-				MY::uint m = aDIM + dist_I_PSO(mt_A_PSO[id]) % (SON-aDIM);
-				tmpP[id][m]+=5;
-				func->UYGUNLUK(tmpP[id],tmpP[id][nDIM],false);
-				double der_O = (tmpP[id][nDIM] - dPUB[i][nDIM]);
-				if(der_O !=0){
-					double der_W  = dPUB[i][m]-tmpP[id][m];
-					double del    = OK*der_O/der_W;
-						 if(del  >  5){del =  5;}
-					else if(del  < -5){del = -5;}
-					dPUB[i][m] -= (del);
-						 if (dPUB[i][m] < aSNR[m]) { dPUB[i][m] = aSNR[m];}
-					else if (dPUB[i][m] > uSNR[m]) { dPUB[i][m] = uSNR[m];}
+					if constexpr(_RAO == 3){
+						MY::uint m;
+						do { m = nTH_BSL[id]+dist_I_PSO(mt_A_PSO[id])%n; } while (i == m || i < nTH_BSL[id] || i >= nTH_BTS[id] || i<0 || i>nPUB);
+						double r1=DoubleFromBits(mt_A_PSO[id]());
+						double r2=DoubleFromBits(mt_A_PSO[id]());
+						if (dPUB[i][nDIM]<dPUB[m][nDIM]){
+							for (MY::uint j = aDIM; j < SON; j++) {
+								tmpP[id][j] = dPUB[i][j] +
+										r1 * (G_BEST[id][j] - fabs(G_WRST[id][j])) +
+										r2 * (fabs(dPUB[i][j]) - dPUB[m][j]);
+							}
+						}else{
+							for (MY::uint j = aDIM; j < SON; j++) {
+								tmpP[id][j] = dPUB[i][j] +
+										r1 * (G_BEST[id][j] - fabs(G_WRST[id][j])) +
+										r2 * (fabs(dPUB[m][j]) - dPUB[i][j]);
+							}
+						}
+					}
+					for (MY::uint j = aDIM; j < SON; j++) {
+						 if (tmpP[id][j] < aSNR[j]) { tmpP[id][j] = aSNR[j];}
+					else if (tmpP[id][j] > uSNR[j]) { tmpP[id][j] = uSNR[j];}
+					}
+					func->UYGUNLUK(tmpP[id],tmpP[id][nDIM],false);
+					bool OK=COMPARE_UPDATE_B(dPUB[i],tmpP[id],true);
+					if(OK){NOTIFY(dPUB[i],id,i,true);}
 				}
-				func->UYGUNLUK(dPUB[i],dPUB[i][nDIM],false);
-				NOTIFY(dPUB[i],id,i,true);
 			}
 			/**********************************************************************************/
+			if(CZ==1){
+				if constexpr(_PSO != 0){
+					for (MY::uint j = aDIM; j <   SON; j++) { L_BEST[id][j] = P_BEST[i][j];}
+					for (MY::uint j = nDIM; j <= nTAM; j++) { L_BEST[id][j] = P_BEST[i][j];}
+					for (MY::uint ii = 0; ii<nLOC; ii++) {
+						MY::uint k = (i+ii);
+						while(k >= nTH_BTS[id]){k = nTH_BSL[id]+(k-nTH_BTS[id]);}
+						COMPARE_UPDATE_B(L_BEST[id],P_BEST[k],true);
+					}
+					double *aVEL	= &VEL[i][0]+aDIM;
+					double *adPUB	= &dPUB[i][0]+aDIM;
+					double *aP_BEST = &P_BEST[i ][0]+aDIM;
+					double *aL_BEST = &L_BEST[id][0]+aDIM;
+					double *aG_BEST = &G_BEST[id][0]+aDIM;
+					double F1=DoubleFromBits(mt_A_PSO[id]())*c1;
+					double F2=DoubleFromBits(mt_A_PSO[id]())*c2;
+					double F3=DoubleFromBits(mt_A_PSO[id]())*c3;
+					for (MY::uint j = aDIM; j < SON; j++) {
+						(*aVEL) = K * ((*aVEL) +
+								F1 * ((*aP_BEST) - (*adPUB)) +
+								F2 * ((*aL_BEST) - (*adPUB)) +
+								F3 * ((*aG_BEST) - (*adPUB)));
+							 if((*aVEL) > ( 10)){(*aVEL) =( 10);}
+						else if((*aVEL) < (-10)){(*aVEL) =(-10);}
+						(*adPUB) += (*aVEL);
+							 if ((*adPUB) < aSNR[j]) { (*adPUB) = aSNR[j];}
+						else if ((*adPUB) > uSNR[j]) { (*adPUB) = uSNR[j];}
+						aVEL ++;
+						adPUB ++;
+						aP_BEST ++;
+						aL_BEST ++;
+						aG_BEST ++;
+	//					VEL[i][j] = K * (VEL[i][j] +
+	//							F1 * (P_BEST[id][j] - dPUB[i][j]) +
+	//							F2 * (L_BEST[id][j] - dPUB[i][j]) +
+	//							F3 * (G_BEST[id][j] - dPUB[i][j]));
+	//						 if(VEL[i][j] > ( 30)){VEL[i][j] =( 30);}
+	//					else if(VEL[i][j] < (-30)){VEL[i][j] =(-30);}
+	//					dPUB[i][j] += VEL[i][j];
+	//						 if (dPUB[i][j] < aSNR[j]) { dPUB[i][j] = aSNR[j];}
+	//					else if (dPUB[i][j] > uSNR[j]) { dPUB[i][j] = uSNR[j];}
+					}
+					func->UYGUNLUK(dPUB[i],dPUB[i][nDIM],false);
+					NOTIFY(dPUB[i],id,i,true);
+				}
+			}
 			/**********************************************************************************/
+			if(CZ==2){
+				if constexpr(_GA != 0){
+					for (MY::uint j = 0; j < nDIM; j++) {tmpP[id][j] = dPUB[i][j];}
+					double U = DoubleFromBits(mt_A_PSO[id]());
+					if (U < cro_rate) {
+						if (U < mut_rate) {
+							for (MY::uint j = aDIM; j < SON; j++){
+								tmpP[id][j] = aSNR[j] + araSNR[j]* DoubleFromBits(mt_A_PSO[id]());
+								 if (tmpP[id][j] < aSNR[j]) { tmpP[id][j] = aSNR[j];}
+							else if (tmpP[id][j] > uSNR[j]) { tmpP[id][j] = uSNR[j];}
+							}
+						}else{
+							MY::uint m;
+							do { m = nTH_BSL[id]+dist_I_PSO(mt_A_PSO[id])%n; } while (i == m || i < nTH_BSL[id] || i >= nTH_BTS[id] || i<0 || i>nPUB);
+							double cr_d =  DoubleFromBits(mt_A_PSO[id]());
+							double S	= (DoubleFromBits(mt_A_PSO[id]())-0.5)*4;
+							for (MY::uint j = aDIM; j < SON; j++){
+								tmpP[id][j] = (cr_d)*dPUB[i][j] + (1.0 - cr_d) * dPUB[m][j] + S;
+								 if (tmpP[id][j] < aSNR[j]) { tmpP[id][j] = aSNR[j];}
+							else if (tmpP[id][j] > uSNR[j]) { tmpP[id][j] = uSNR[j];}
+							}
+						}
+					}
+					func->UYGUNLUK(tmpP[id],tmpP[id][nDIM],false);
+					bool OK = COMPARE_UPDATE_B(dPUB[i],tmpP[id],true);
+					if(OK){
+						for (MY::uint j = 0; j <= nTAM; j++){P_BEST[i][j] =  dPUB[i][j]; }
+						NOTIFY(dPUB[i],id,i,true);
+					}
+				}
+			}
+			/**********************************************************************************/
+			if(CZ==3){
+				if constexpr(_GRD != 0){
+					const double OK = 2;
+					for (MY::uint j = 0; j <   nDIM; j++) { tmpP  [id][j] =   dPUB[i][j];}
+					MY::uint m = aDIM + dist_I_PSO(mt_A_PSO[id]) % (SON-aDIM);
+					tmpP[id][m]+=5;
+					func->UYGUNLUK(tmpP[id],tmpP[id][nDIM],false);
+					double der_O = (tmpP[id][nDIM] - dPUB[i][nDIM]);
+					if(der_O !=0){
+						double der_W  = dPUB[i][m]-tmpP[id][m];
+						double del    = OK*der_O/der_W;
+							 if(del  >  5){del =  5;}
+						else if(del  < -5){del = -5;}
+						dPUB[i][m] -= (del);
+							 if (dPUB[i][m] < aSNR[m]) { dPUB[i][m] = aSNR[m];}
+						else if (dPUB[i][m] > uSNR[m]) { dPUB[i][m] = uSNR[m];}
+					}
+					func->UYGUNLUK(dPUB[i],dPUB[i][nDIM],false);
+					NOTIFY(dPUB[i],id,i,true);
+				}
+			}
 			/**********************************************************************************/
 			/**********************************************************************************/
 			sum[id]    +=  P_BEST[i][nDIM];
