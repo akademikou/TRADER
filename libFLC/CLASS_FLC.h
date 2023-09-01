@@ -1,11 +1,3 @@
-#ifndef PATH
-	#if defined(_MSC_VER)    //  Microsoft
-		#define PATH "C:/Users/akade/Documents/R_PROJ_LVQ/"
-//		#define PATH ""
-	#elif defined(__GNUC__)   //  GCC
-		#define PATH "/root/R_PROJ_LVQ/"
-	#endif
-#endif
 /**********************************************************************************************/
 #pragma once
 #ifndef CLASS_FLC_H
@@ -16,9 +8,9 @@
     #define EXPORT_FLC __declspec(dllexport)
     #define IMPORT_FLC __declspec(dllimport)
 #elif defined(__GNUC__)
-    //  GCC
-    #define EXPORT_FLC __attribute__((visibility("default")))
-    #define IMPORT_FLC
+//  GCC
+#define EXPORT_FLC __attribute__((visibility("default")))
+#define IMPORT_FLC
 #else
     //  do nothing and hope for the best?
     #define EXPORT_FLC
@@ -43,7 +35,7 @@ protected:
 public:
 	void RUN();
 	virtual ~FLC();
-	FLC(unsigned int _n, unsigned int _c,unsigned int _b,double **_X);
+	FLC(unsigned int _n, unsigned int _c, unsigned int _b, double **_X);
 	void YAZ(int id);
 protected:
 	void RUN_F();
