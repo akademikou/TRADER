@@ -1,1 +1,8 @@
-﻿
+﻿  CLASS_PSO.cpp
+  PSO_AUX.cpp
+D:\MC\FLASH\TRADER\libPSO\CLASS_PSO.cpp(478,24): warning C4244: '=': conversion from '_Ty' to 'MY::uint', possible loss of data
+          with
+          [
+              _Ty=double
+          ]
+LINK : fatal error LNK1181: cannot open input file 'libKON.lib'

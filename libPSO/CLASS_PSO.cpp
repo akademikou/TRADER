@@ -50,7 +50,7 @@ PSO::PSO(KON *_infunc, const MY::uint &_nI) {
 	nDIM = func->GET_DIM();
 	// 285  /3->95 GRUP /15->19 HUCRE
 	LDIM = nDIM;	// 270  /3->90 GRUP /15->18 HUCRE /45->6
-	nPUB = 2 * LDIM;
+	nPUB = 10 * LDIM;
 	nPUB -= nPUB % nProcessors;
 	nLOC = (MY::uint) (MY::uint(nPUB / nProcessors) / 3);
 	nCRITER = 3;

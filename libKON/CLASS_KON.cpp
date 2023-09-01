@@ -1006,7 +1006,8 @@ void KON::YAZ_EMIR(const std::string NAME, const double *_In) {
 		EMIR[id][i] = 0;
 	}
 	MY::uint info;
-	MY::uint SAY[nTH][nH];
+	MY::uint **SAY;
+	SAY = Init_Matrix_2D<MY::uint>(nTH, nH);
 	for (MY::uint i = 0; i < nTH; i++) {
 		for (MY::uint j = 0; j < nH; j++) {
 			SAY[i][j] = 0;
@@ -1027,6 +1028,10 @@ void KON::YAZ_EMIR(const std::string NAME, const double *_In) {
 		DOSYA << EMIR[id][i] << "\t" << OHLC[i][3] << "\n";
 	}
 	DOSYA.close();
+	if (SAY != NULL) {
+		Free_Matrix_2D(SAY);
+		SAY = NULL;
+	}
 }
 /***********************************************************************************/
 void KON::YAZ_TAM_EMIR(const std::string NAME) {
@@ -1040,7 +1045,8 @@ void KON::YAZ_TAM_EMIR(const std::string NAME) {
 		EMIR[id][i] = 0;
 	}
 	MY::uint info;
-	MY::uint SAY[nTH][nH];
+	MY::uint **SAY;
+	SAY = Init_Matrix_2D<MY::uint>(nTH, nH);
 	for (MY::uint i = 0; i < nTH; i++) {
 		for (MY::uint j = 0; j < nH; j++) {
 			SAY[i][j] = 0;
@@ -1109,6 +1115,10 @@ void KON::YAZ_TAM_EMIR(const std::string NAME) {
 		DOSYA << EMIR[id][i] << "\t" << OHLC[i][3] << "\n";
 	}
 	DOSYA.close();
+	if (SAY != NULL) {
+		Free_Matrix_2D(SAY);
+		SAY = NULL;
+	}
 }
 /***********************************************************************************/
 void KON::YAZ_OPT(std::string NAME, double *_In) {
