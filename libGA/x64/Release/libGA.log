@@ -1,3 +1,0 @@
-﻿  CLASS_GA.cpp
-  GA_AUX.cpp
-LINK : fatal error LNK1181: cannot open input file 'libKON.lib'
