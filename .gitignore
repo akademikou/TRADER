@@ -78,3 +78,7 @@
 /libGA/x64/Release/libGA.tlog/CL.3412.write.1.tlog
 /libFLC/x64/Release/libFLC.iobj
 /x64/Release/libFLC.dll
+*.txt
+/libFLC/x64/Release/libFLC.Build.CppClean.log
+/libMATRIX/x64/Release/libMATRIX.Build.CppClean.log
+/libGA/x64/Release/libGA.tlog/CL.read.1.tlog
