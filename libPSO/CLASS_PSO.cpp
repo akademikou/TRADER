@@ -49,7 +49,7 @@ PSO::PSO(KON *_infunc, const MY::uint &_nI) {
 	iterMAX = _nI;
 	nDIM = func->GET_DIM();
 	// 285  /3->95 GRUP /15->19 HUCRE
-	LDIM = nDIM;	// 270  /3->90 GRUP /15->18 HUCRE /45->6
+	LDIM = nDIM ;	// 270  /3->90 GRUP /15->18 HUCRE /45->6
 	nPUB = 10 * LDIM;
 	nPUB -= nPUB % nProcessors;
 	nLOC = (MY::uint) (MY::uint(nPUB / nProcessors) / 3);
@@ -75,6 +75,7 @@ PSO::~PSO() {
 	delete[] mt_A_PSO;
 	delete[] sum;
 	delete[] sq_sum;
+	delete[] nTH_STT;
 	delete[] nTH_BSL;
 	delete[] nTH_BTS;
 	delete[] aSNR;
@@ -111,6 +112,7 @@ void PSO::init_HAFIZA() {
 	mt_A_PSO = new XoshiroCpp::Xoshiro256PlusPlus[nProcessors];
 	sum = new double[nProcessors];
 	sq_sum = new double[nProcessors];
+	nTH_STT = new MY::uint[nProcessors];
 	nTH_BSL = new MY::uint[nProcessors];
 	nTH_BTS = new MY::uint[nProcessors];
 	aSNR = new double[nDIM];
@@ -196,6 +198,7 @@ void PSO::URET() {
 			std::cout << id << "\t" << nProcessors << "\tTHREAD SAYI HATA\n";
 			system("pause");
 		}
+		nTH_STT[id] = 0;
 		MY::uint n = (nTH_BTS[id] - nTH_BSL[id]);
 		sum[id] = 0;
 		sq_sum[id] = 0;
@@ -427,9 +430,22 @@ void PSO::URET() {
 			for (MY::uint j = aDIM; j < SON; j++) {
 				P_MEAN[id][j] += dPUB[i][j];
 			}
+			MY::uint TMP = 0;
+			for (MY::uint j = 0; j < nProcessors; j++) {
+				TMP += nTH_STT[j];
+			}
+			if (TMP > nProcessors / 2) {
+#pragma omp critical
+				{
+					std::cout << "Terminating Thread\n" << "Number of endings: "
+							<< TMP << "\n" << "Last iteration: " << i << "\n";
+					break;
+				}
+			}
 		}
 		func->UYGUNLUK(G_BEST[id], G_BEST[id][nDIM], false);
 		func->UYGUNLUK(G_WRST[id], G_WRST[id][nDIM], false);
+		nTH_STT[id] = 1;
 	}
 	for (MY::uint id = 1; id < nProcessors; id++) {
 		if (COMPARE_UPDATE_B(G_BEST[0], G_BEST[id], true)) {

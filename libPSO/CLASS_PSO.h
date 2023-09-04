@@ -38,6 +38,7 @@ protected:
 	MY::uint *nTH_LIM;
 	MY::uint *nTH_BSL;
 	MY::uint *nTH_BTS;
+	MY::uint *nTH_STT;
 	MY::uint nDIM;
 	MY::uint nPUB;
 
