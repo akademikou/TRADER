@@ -76,7 +76,7 @@ int main() {
 #endif
 	}
 	double SONUC = 0;
-	int nITER = 80;
+	int nITER = 40;
 //	PSO_DIM*OPTIM_PSO = new PSO_DIM(func, nITER);
 	PSO *OPTIM_PSO = new PSO(func, nITER);
 	SONUC = OPTIM_PSO->RUN(IN_tmp);
